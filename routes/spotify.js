@@ -3,39 +3,50 @@ var router = express.Router();
 var config = require('../misc/config');
 var request = require('request');
 
+var clientString = new Buffer(config.clientId + ':' + config.clientSecret).toString('base64');
 /* GET users listing. */
 router.post('/access', function(req, res, next) {
   var accessRequest = req.body;
-  request.post(config.tokenURL,
-    {
-      form: {
+  request({
+      url: config.tokenURL,
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + clientString
+      },
+      json: {
         grant_type: config.authorizeGrant,
         code: accessRequest.accessToken,
-        redirect_uri: config.redirectURI,
-        client_id: config.clientId,
-        client_secret: config.clientSecret
-    }}, function(error, response, body) {
-        if (response.statusCode == 200) {
-            res.json(body);
+        redirect_uri: config.redirectURI
+      }
+    }, function(error, response, body) {
+        if (response.statusCode !== 200) {
+            console.log(body.error);
         }
-        console.log(response);
+        res.json(response);
     });
 });
 
 router.post('/refresh', function(req, res, next) {
   var accessRequest = req.body;
-  request.post(config.tokenURL,
-    {
-      form: {
+  request({
+      url: config.tokenURL,
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + clientString
+      },
+      json: {
         grant_type: config.refreshGrant,
         refresh_token: accessRequest.refreshToken,
         client_id: config.clientId,
         client_secret: config.clientSecret
-    }}, function(error, response, body) {
-        if (response.statusCode == 200) {
-            res.json(body);
+      }
+    }, function(error, response, body) {
+        if (response.statusCode !== 200) {
+            console.log(error);
         }
-        console.log(response);
+        res.json(body);
     });
 });
 
