@@ -14,7 +14,7 @@ router.post('/access', function(req, res, next) {
         'Content-Type':'application/x-www-form-urlencoded',
         'Authorization': 'Basic ' + clientString
       },
-      json: {
+      form: {
         grant_type: config.authorizeGrant,
         code: accessRequest.accessToken,
         redirect_uri: config.redirectURI
@@ -23,7 +23,8 @@ router.post('/access', function(req, res, next) {
         if (response.statusCode !== 200) {
             console.log(body.error);
         }
-        res.json(response);
+        var responseObj = JSON.parse(body);
+        res.json(responseObj);
     });
 });
 
@@ -36,7 +37,7 @@ router.post('/refresh', function(req, res, next) {
         'Content-Type':'application/x-www-form-urlencoded',
         'Authorization': 'Basic ' + clientString
       },
-      json: {
+      form: {
         grant_type: config.refreshGrant,
         refresh_token: accessRequest.refreshToken,
         client_id: config.clientId,
@@ -46,7 +47,8 @@ router.post('/refresh', function(req, res, next) {
         if (response.statusCode !== 200) {
             console.log(error);
         }
-        res.json(body);
+        var responseObj = JSON.parse(body);
+        res.json(responseObj);
     });
 });
 
